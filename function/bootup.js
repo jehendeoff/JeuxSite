@@ -2,7 +2,8 @@ const fs= require('fs')
 const yaml= require('yaml')
 
 exports.run = () => {
-    
+
+    //checking the integrity of the files...
     if(!fs.existsSync("./config.yml")){
         throw new Error("Something's wrong, the \"config\" file is missing.\n\n")
     }
@@ -18,6 +19,7 @@ exports.run = () => {
 
     var config = yaml.parse(fs.readFileSync("./config.yml", 'utf-8'))
 
+    //checking the integrity of the config...
     if(!config.version || config.version !== "0.0.1") throw new Error("The config file version is not the same.\nPlease update.\n\n")
     if(!config.path) throw new Error("The config file is incorrect, please check (path is missing).\n\n")
     if(!config.http_port) throw new Error("The config file is incorrect, please check (http port is missing).\n\n")
@@ -29,6 +31,7 @@ exports.run = () => {
     if(config.rate_limit === 'true' && !config.rate_limit_continue) throw new Error("The config file is incorrect, please check (rate limit continue is missing).\n\n")
     if(config.rate_limit === 'true' && config.rate_limit_continue === 'true' && !config.rate_limit_continue_rate) throw new Error("The config file is incorrect, please check (rate limit continue rate is missing).\n\n")
     
+    //creating the simple example...
     if(!fs.existsSync(config.path)){
         fs.mkdirSync(config.path)
         fs.mkdirSync(config.path + "localhost/")
@@ -37,5 +40,6 @@ exports.run = () => {
         fs.writeFileSync(config.path + "localhost/web/index.html", `<h1>Hello world</h1>`)
     }
 
+    //passing the config...
     return config
 }
