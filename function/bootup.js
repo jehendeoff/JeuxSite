@@ -16,6 +16,9 @@ exports.run = () => {
     if(!fs.existsSync("./Default web page/too many request.html")){
         throw new Error("Something's wrong, the \"too many request\" file is missing.\n\n")
     }
+    if(!fs.existsSync("./Default web page/example.js")){
+        throw new Error("Something's wrong, the \"example\" file is missing.\n\n")
+    }
 
     var config = yaml.parse(fs.readFileSync("./config.yml", 'utf-8'))
 
@@ -36,7 +39,7 @@ exports.run = () => {
         fs.mkdirSync(config.path)
         fs.mkdirSync(config.path + "localhost/")
         fs.mkdirSync(config.path + "localhost/web/")
-        fs.writeFileSync(config.path + "localhost/index.js", `const fs = require('fs');\nconst http = require('http')\nconst https = require('https')\n/**\n * @param {http.IncomingMessage} req The request\n * @param {http.ServerResponse} res The response\n * @param {String} config The parsed config\n */\nexports.http = async (req, res, config) => {\n    res.writeHead(200, {\n        'X-Frame-Options': 'DENY',\n        'X-Coded-By': 'Jehende',\n        'content-type': 'text/html;charset=utf-8',\n        'Cache-Control': 'max-age=31536000'\n    });\n    res.write(fs.readFileSync(config.path + req.headers.host + "\\\\web\\\\index.html"));\n    res.end();\n    return;\n}\n/**\n * @param {https.IncomingMessage} req The request\n * @param {http.ServerResponse} res The response\n * @param {String} config The parsed config\n */\nexports.https = async (req, res, config) => {\n    res.writeHead(200, {\n        'X-Frame-Options': 'DENY',\n        'X-Coded-By': 'Jehende',\n        'content-type': 'text/html;charset=utf-8',\n        'Cache-Control': 'max-age=31536000'\n    });\n    res.write(fs.readFileSync(config.path + req.headers.host + "\\\\web\\\\index.html"));\n    res.end();\n    return;\n}\n`)
+        fs.writeFileSync(config.path + "localhost/index.js", fs.readFileSync('./Default web page/example.js', 'utf-8'))
         fs.writeFileSync(config.path + "localhost/web/index.html", `<h1>Hello world</h1>`)
     }
 
