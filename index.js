@@ -17,15 +17,16 @@ config.path ? console.log('config, verified & loaded') : () => {throw new Error(
 var limit = {}
 
 setInterval(_ =>{
+    console.log(limit)
     for (var key in limit) {
         if (limit.hasOwnProperty(key))
-            if(parseInt(limit[key].count) > 1){
+            if(limit[key].count > 0){
                 limit[key] = {
-                    count: parseInt(limit[key].count) - 5
+                    count: limit[key].count - 1
                 }
             }
     }
-}, 5 * 1000)
+}, 1 * 1000)
 
 const http = require("http")
 
@@ -35,7 +36,7 @@ http.createServer((req, res) => {
             if (parseInt(limit[req.connection.remoteAddress].count)>= config.rate_limit_number){
                 if(config.rate_limit_continue === true){
                     limit[req.connection.remoteAddress]= {
-                        count: parseInt(limit[req.connection.remoteAddress].count) + config.rate_limit_continue_rate
+                        count: limit[req.connection.remoteAddress].count + config.rate_limit_continue_rate
                     }
                 }
                 res.writeHead(429, {
@@ -50,7 +51,7 @@ http.createServer((req, res) => {
                 return
             }else{
                 limit[req.connection.remoteAddress]= {
-                    count: parseInt(limit[req.connection.remoteAddress].count) + 1
+                    count: limit[req.connection.remoteAddress].count + 1
                 }
             }
     
@@ -91,7 +92,7 @@ if (config.https === true) https.createServer(httpsoptions, (req, res) => {
             if (parseInt(limit[req.connection.remoteAddress].count)>= config.rate_limit_number){
                 if(config.rate_limit_continue === true){
                     limit[req.connection.remoteAddress]= {
-                        count: parseInt(limit[req.connection.remoteAddress].count) + config.rate_limit_continue_rate
+                        count: limit[req.connection.remoteAddress].count + config.rate_limit_continue_rate
                     }
                 }
                 res.writeHead(429, {
@@ -106,7 +107,7 @@ if (config.https === true) https.createServer(httpsoptions, (req, res) => {
                 return
             }else{
                 limit[req.connection.remoteAddress]= {
-                    count: parseInt(limit[req.connection.remoteAddress].count) + 1
+                    count: limit[req.connection.remoteAddress].count + 1
                 }
             }
     
