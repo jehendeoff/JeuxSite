@@ -89,7 +89,7 @@ function handler (req, res){
     var domain = `${req.headers.host}`.split(":")[0]
 
     //checking if domain is registered
-    if (!fs.existsSync(config.path + req.headers.host)){
+    if (!fs.existsSync(config.path + domain)){
         res.writeHead(500, {
             'X-Frame-Options': 'DENY',
             'content-type': 'text/html;charset=utf-8',
@@ -101,7 +101,7 @@ function handler (req, res){
     }
 
     //passing the info
-    require(config.path + req.headers.host + '/index.js').http(req, res, config)
+    require(config.path + domain + '/index.js').http(req, res, config, domain)
 }
 
 //Creating the http server
