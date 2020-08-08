@@ -19,7 +19,7 @@ var limit = {}
 setInterval(_ =>{
     for (var key in limit) {
         if (limit.hasOwnProperty(key))
-            if(parseInt(cooldownreq[key].count) > 1){
+            if(parseInt(limit[key].count) > 1){
                 limit[key] = {
                     count: parseInt(limit[key].count) - 5
                 }
