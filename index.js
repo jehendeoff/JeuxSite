@@ -1,8 +1,8 @@
 //warning this need test, I only did this because .... I was bored ?
 
-//in short, how to set this baby up is simple : if you have a domaine name, put "a" redirection on the server running it and create a foler with you domain name in the path you provided
+//in short, how to set this baby up is simple : if you have a domaine name, put "a" redirection on the server running it and create a folder with your domain name in the path you provided
 // ...
-// this is all, you can even redirect sub-domain on the same serveur and create sub domain with one machine, and using node js for each of you domain, the 'localhost' contain a simple nodejs file for you to test.
+// this is all, you can even redirect sub-domain on the same serveur and create sub domain with one machine, and using node js for each of your domain, the 'localhost' contain a simple nodejs file for you to test.
 //Oh and you can also use multiple domain !
 
 //In future revision I plan on adding support for socket.io !
