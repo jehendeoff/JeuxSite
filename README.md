@@ -4,8 +4,10 @@ A simple and easy way to use 1 machine for unlimited domains/sub-domains (and st
 Why would you want that ?
 
 let's say you own a domain like `jehende.fr` and you only have one server but you realy want to also have a subdamin like `jeuxgate.jehende.fr` and you need to use nodejs for each of them.
-Well JeuxSite can do that. (and of course it runs on 80 port and 443 (yes, it supports https))
-Oh and you can have multiple domain running on one machine.
+
+Well JeuxSite can do that. (and of course it runs on 80 port and 443 (yes, it supports https)).
+
+Oh and it can handle multiple domain running on one machine.
 
 
 ## Setup
