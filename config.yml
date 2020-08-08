@@ -1,0 +1,27 @@
+version: 0.0.1
+#  /\
+# Do not edit it won't start otherwise, use at your own risk.
+
+path: Z:\Web\
+#Path to where it will search for domain site.
+
+http_port: 80
+#port for http (80 by default)
+
+https: true
+#should it use https? 
+path_to_ssl_cert: Z:\Web\
+#where are the ssl cert? (for the key, rename it 'privkey.pem' for the cert rename it 'cert.pem' (you can rename fullchain to privkey, but it will cause issue if I release an update with socket.io.))
+https_port: 443
+#port for https (443 by default)
+
+rate_limit: true
+#should it use its own rate limit or not ? 
+#/!\ the rate limit is ip based, you may want to crank it up a bit if you're intending to use it on a big scale.
+#(or even handling it yourself in your code!)
+rate_limit_number: 10
+#at how many request per second should the the rate limite trigger 
+#(it decrease every 5 second tho)
+rate_limit_continue: true
+#should it increase even when the ip has reached the number ? 
+rate_limit_continue_rate: 0.5
