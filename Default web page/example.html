@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <!-- meta -->
+        <meta charset="utf-8">
+        <meta property="theme-color" content="#019aa5">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="JeuxSite" />
+        <meta property="og:description" content="Default page" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+
+        <!-- title + link -->
+        <title>JeuxSite</title>
+        <link rel="stylesheet" href="https://jeuxgate.jehende.fr/css/index.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="/socket.io/socket.io.js"></script>
+        <style>body{
+            font-size: unset;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Hello world</h1>
+        <br><br>
+        <a id="socket.io">no socket.io message.</a>
+    </body>
+    <script>
+        var socket = io.connect(document.baseURI )
+        socket.on('success', (code => {
+            document.getElementById('socket.io').innerText = code
+        }))
+    </script>
+</html>
