@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.1a
 #  /\
 # Do not edit it won't start otherwise, use at your own risk.
 
@@ -15,13 +15,21 @@ path_to_ssl_cert: Z:\Web\
 https_port: 443
 #port for https (443 by default)
 
+socketio: true
+#sould we enable socketio support?
+#(it will automatically use https if https is enabled!)
+
 rate_limit: true
 #should it use its own rate limit or not ? 
 #/!\ the rate limit is ip based, you may want to crank it up a bit if you're intending to use it on a big scale.
 #(or even handling it yourself in your code!)
+#it will also put a rate limit on socketio if enabled, the socketio rate limit will be separated
 rate_limit_number: 10
 #at how many request per second should the the rate limite trigger 
 #(it decrease every 5 second tho)
+rate_limit_separate: false
+#is the rate limit separated for each domain? 
+#(it will also apply separate rate limiter for socketio per domain)
 rate_limit_continue: true
-#should it increase even when the ip has reached the number ? 
+#should it increase even when the ip has reached the number? 
 rate_limit_continue_rate: 0.5
