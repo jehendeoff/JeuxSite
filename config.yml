@@ -1,16 +1,18 @@
-version: 0.0.1a
+version: 0.0.2
 #  /\
 # Do not edit it won't start otherwise, use at your own risk.
 
-path: Z:\Web\
+path: I:/jeuxsite/Web/
 #Path to where it will search for domain site.
 
-http_port: 80
+http_port: 81
 #port for http (80 by default)
+replace_www: true
+##should it not take "www." before a domain ?
 
 https: true
 #should it use https? 
-path_to_ssl_cert: Z:\Web\
+path_to_ssl_cert: I:/jeuxsite/Web/
 #where are the ssl cert? (for the key, rename it 'privkey.pem' for the cert rename it 'cert.pem' (you can rename fullchain to privkey, but it will cause issue if I release an update with socket.io.))
 https_port: 443
 #port for https (443 by default)
@@ -18,18 +20,3 @@ https_port: 443
 socketio: true
 #sould we enable socketio support?
 #(it will automatically use https if https is enabled!)
-
-rate_limit: true
-#should it use its own rate limit or not ? 
-#/!\ the rate limit is ip based, you may want to crank it up a bit if you're intending to use it on a big scale.
-#(or even handling it yourself in your code!)
-#it will also put a rate limit on socketio if enabled, the socketio rate limit will be separated
-rate_limit_number: 10
-#at how many request per second should the the rate limite trigger 
-#(it decrease every 5 second tho)
-rate_limit_separate: false
-#is the rate limit separated for each domain? 
-#(it will also apply separate rate limiter for socketio per domain)
-rate_limit_continue: true
-#should it increase even when the ip has reached the number? 
-rate_limit_continue_rate: 0.5

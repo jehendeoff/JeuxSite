@@ -23,17 +23,14 @@ exports.run = () => {
     var config = yaml.parse(fs.readFileSync("./config.yml", 'utf-8'))
 
     //checking the integrity of the config...
-    if(!config.version || config.version !== "0.0.1a") throw new Error("The config file version is not the same.\nPlease update.\n\n")
-    if(!config.path) throw new Error("The config file is incorrect, please check (path is missing).\n\n")
-    if(!config.http_port) throw new Error("The config file is incorrect, please check (http port is missing).\n\n")
-    if(!config.https || (!config.https === false && !config.https === true)) throw new Error("The config file is incorrect, please check (https is missing).\n\n")
-    if(config.https === true && !config.https_port) throw new Error("The config file is incorrect, please check (https port is missing).\n\n")
-    if(config.https === true && !config.path_to_ssl_cert) throw new Error("The config file is incorrect, please check (path to ssl cert is missing).\n\n")
-    if(!config.rate_limit || (!config.rate_limit === true && !config.rate_limit === false)) throw new Error("The config file is incorrect, please check (rate limit is missing).\n\n")
-    if(config.rate_limit === true && !config.rate_limit_number) throw new Error("The config file is incorrect, please check (rate limit number is missing).\n\n")
-    if(config.rate_limit === true && !config.rate_limit_continue === false && !config.rate_limit_continue === true) throw new Error("The config file is incorrect, please check (rate limit continue is missing).\n\n")
-    if(config.rate_limit === true && config.rate_limit_continue === true && !config.rate_limit_continue_rate) throw new Error("The config file is incorrect, please check (rate limit continue rate is missing).\n\n")
-    if(!config.socketio || (!config.socketio === true && !config.socketio === false)) throw new Error("The config file is incorrect, please check (socketio is missing).\n\n")
+    if(config.version === undefined || config.version !== "0.0.2") throw new Error("The config file version is not the same.\nPlease update.\n\n")
+    if(config.path === undefined) throw new Error("The config file is incorrect, please check (path is missing).\n\n")
+    if(config.http_port === undefined) throw new Error("The config file is incorrect, please check (http port is missing).\n\n")
+    if(config.https === undefined && (config.https !== false && config.https !== true)) throw new Error("The config file is incorrect, please check (https is missing).\n\n")
+    if(config.https === true && config.https_port === undefined) throw new Error("The config file is incorrect, please check (https port is missing).\n\n")
+    if(config.https === true && config.path_to_ssl_cert === undefined) throw new Error("The config file is incorrect, please check (path to ssl cert is missing).\n\n")
+    if(config.replace_www === undefined || (config.replace_www === undefined === true && config.replace_www === undefined === false)) throw new Error("The config file is incorrect, please check (rate limit is missing).\n\n")
+    if(config.socketio === undefined || (config.socketio === undefined === true && config.socketio === undefined === false)) throw new Error("The config file is incorrect, please check (socketio is missing).\n\n")
     //creating the simple example...
     if(!fs.existsSync(config.path)){
         fs.mkdirSync(config.path)
