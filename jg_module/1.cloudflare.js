@@ -11,7 +11,7 @@ const options = {
         where: "https://jehende.fr"
     },
     stop_the_request : false, //should it destroy the request so that the request isn't processed any further ? (highly recommended)
-    cache_the_response: true, //should it send a time in the cache control header
+    cache_the_response: true, //should it send a time in the cache control header, only useful when stop_the_request, ou redirect is enabled, else it may cache request that you wouldn't want to be cached
     cloudlfare_ip: {
         do_actualise: true, //should it get cloudflare's ip everytime ? (i don't recommend, cuz' if your machine (or network for that matter) is poisoned then it could let an entry here maybe by using some kind of mitm attack) 
         ip_list: {
