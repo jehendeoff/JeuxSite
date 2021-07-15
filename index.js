@@ -8,17 +8,25 @@
 
 //check if it can boot
 const fs = require("fs")
-if (!fs.existsSync("./function/")) return console.error("You installed it wrong, the \"function\" folder is missing.\n\n")
+
+if (!fs.existsSync('./function/log.js')){
+    log = console
+} else{
+    log = require('./function/log.js')
+}
+
+if (!fs.existsSync("./function/")) return log.error("You installed it wrong, the \"function\" folder is missing.\n\n")
 
 //starting the boot sequence
 let config
 fs.existsSync("./function/bootup.js") ? config = require("./function/bootup").run() : () => {
-    console.error("You installed it wrong, the \"bootup\" file is missing.\n\n");
+    log.error("You installed it wrong, the \"bootup\" file is missing.\n\n");
     process.exit(1)
 }
 //simple check to verify the config has been passed
-config.path ? console.log('The config was parsed, and verified with success !') : () => {
-    throw new Error("Config wasn't able to be loaded !")
+config.path ? log.log('The config was parsed, and verified with success !') : () => {
+    log.error("Config wasn't able to be loaded !");
+    process.exit(1)
 }
 
 // var limit = {}
@@ -42,7 +50,7 @@ var modules = {}
     modules.socket = {}
     modules.socket.before = {}
     modules.socket.after = {}
-console.log(`\r\nLoading modules.`)
+log.log(`\r\nLoading modules.`)
 var PMod =fs.readdirSync(`./jg_module/`)
 var ModulesNB = []
 ModulesNB["http"] =0
@@ -56,35 +64,35 @@ for (const file of PMod) {
                     if(modTMP.http !== undefined){
                         if(modTMP.options.work_on.http === true){
                             modules.http.before[file] = modTMP
-                            console.log(`\tModule "${file}" has hooked in http before the request is processed.`)
+                            log.log(`\tModule "${file}" has hooked in http before the request is processed.`)
                             ModulesNB["http"]++
                         }else{
                             modules.http.after[file] = modTMP
-                            console.log(`\tModule "${file}" has hooked in http after the request is processed.`)
+                            log.log(`\tModule "${file}" has hooked in http after the request is processed.`)
                             ModulesNB["http"]++
                         }
-                    }else console.warn(`\tModule "${file}" specified wanting to hook in http but didn't have a function, not using it.`)
+                    }else log.warn(`\tModule "${file}" specified wanting to hook in http but didn't have a function, not using it.`)
                 }
                 if (modTMP.options.work_on.socket !== undefined){
                     if(modTMP.socket !== undefined){
                         if(modTMP.options.work_on.socket === true){
                             modules.socket.before[file] = modTMP
-                            console.log(`\tModule "${file}" has hooked in socket before the request is processed.`)
+                            log.log(`\tModule "${file}" has hooked in socket before the request is processed.`)
                             ModulesNB["socket"]++
                         }else{
                             modules.socket.after[file] = modTMP
-                            console.log(`\tModule "${file}" has hooked in socket after the request is processed.`)
+                            log.log(`\tModule "${file}" has hooked in socket after the request is processed.`)
                             ModulesNB["socket"]++
                         }
-                    }else console.warn(`\tModule "${file}" specified wanting to hook in socket.io but didn't have a function, not using it.`)
+                    }else log.warn(`\tModule "${file}" specified wanting to hook in socket.io but didn't have a function, not using it.`)
                 }
-            }else console.warn(`\tModule "${file}" didn't have options.`)
+            }else log.warn(`\tModule "${file}" didn't have options.`)
         }
     }
 }
-console.log(`\tFinished loading ${ModulesNB["http"]} http & ${ModulesNB["socket"]} socket modules.`)
+log.log(`\tFinished loading ${ModulesNB["http"]} http & ${ModulesNB["socket"]} socket modules.`)
 
-console.log(`\r\nLoadgin sites.`)
+log.log(`\r\nLoading sites.`)
 var PWeb =fs.readdirSync(config.path)
 var siteNB = []
 siteNB["http"] =0
@@ -99,19 +107,19 @@ for (const dir of PWeb) {
                 var modTMP = require(`${config.path}${dir}\\index.js`)
                 if(modTMP.http !== undefined){
                     site.http[dir] = modTMP.http
-                    console.log(`\tsite "${dir}" loaded in http.`)
+                    log.log(`\tsite "${dir}" loaded in http.`)
                     siteNB["http"]++
-                }else console.warn(`\tsite "${dir}" didn't have a http function, not using it then.`)
+                }else log.warn(`\tsite "${dir}" didn't have a http function, not using it then.`)
                 if(modTMP.socket !== undefined){
                     site.socket[dir] = modTMP.socket
-                    console.log(`\tsite "${dir}" loaded in socket.`)
+                    log.log(`\tsite "${dir}" loaded in socket.`)
                     siteNB["socket"]++
-                }else console.warn(`\tsite "${dir}" didn't have a socket function, not using it then.`)
-            }else console.warn(`\tFound directory ${dir} but "index.js" is a directory, ignoring.`)
-        }else console.warn(`\tFound directory ${dir} but didn't find "index.js" in it, ignoring.`)
+                }else log.warn(`\tsite "${dir}" didn't have a socket function, not using it then.`)
+            }else log.warn(`\tFound directory ${dir} but "index.js" is a directory, ignoring.`)
+        }else log.warn(`\tFound directory ${dir} but didn't find "index.js" in it, ignoring.`)
     }
 }
-console.log(`\tFinished loading ${siteNB["http"]} http & ${siteNB["socket"]} socket modules.`)
+log.log(`\tFinished loading ${siteNB["http"]} http & ${siteNB["socket"]} socket modules.`)
 //Creating the http server
 const http = require("http").createServer((req, res) => {
     req.https = false
@@ -128,7 +136,8 @@ function handler(req, res) {
             req.tmpLog = text
         else
             req.tmpLog += "\r\n" + text
-        if (bool === true) console.log(req.tmpLog)
+        if (bool === true) log.log(req.tmpLog)
+        if (bool === true) delete req.tmpLog 
     }
     req.log(`\r\nIncoming http${req.https ? "s" : ""} request from "${req.connection.remoteAddress}"\r\n\tChecking "before process" modules.`)
     for (const key in modules.http.before) {
@@ -223,7 +232,7 @@ function handler(req, res) {
 http.listen(config.http_port)
 
 //creating the https server only if https is true
-let https
+let https 
 if (config.https === true) https = require("https").createServer({
     key: fs.readFileSync(config.path_to_ssl_cert + "privkey.pem"),
     cert: fs.readFileSync(config.path_to_ssl_cert + "cert.pem"),
@@ -247,7 +256,7 @@ if (config.socketio === true) io.on('connection', socket => {
             socket.tmpLog = text
         else
             socket.tmpLog += "\r\n" + text
-        if (bool === true) console.log(socket.tmpLog)
+        if (bool === true) log.log(socket.tmpLog)
     }
     socket.log(`\r\nIncoming socket request from "${socket.handshake.address}"\r\n\tChecking "before process" modules.`)
     for (const key in modules.socket.before) {
