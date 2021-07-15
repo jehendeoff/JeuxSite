@@ -108,9 +108,9 @@ site.http = {}
 site.socket = {}
 for (const dir of PWeb) {
     if(fs.statSync(`${config.path}${dir}`).isDirectory()){
-        if (fs.existsSync (`${config.path}${dir}\\index.js`)){
-            if(!fs.statSync(`${config.path}${dir}\\index.js`).isDirectory()){
-                var modTMP = require(`${config.path}${dir}\\index.js`)
+        if (fs.existsSync (`${config.path}${dir}/index.js`)){
+            if(!fs.statSync(`${config.path}${dir}/index.js`).isDirectory()){
+                var modTMP = require(`${config.path}${dir}/index.js`)
                 if(modTMP.http !== undefined){
                     site.http[dir] = modTMP.http
                     log.log(`\tsite "${dir}" loaded in http.`)
