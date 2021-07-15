@@ -1,8 +1,8 @@
 const options = {
     //jeuxsite
     work_on: {
-        //http: true, // true mean that it will run before the request is processed by jeuxsite
-        //socket: true, // true mean that it will run before the request is processed by jeuxsite
+        http: true, // true mean that it will run before the request is processed by jeuxsite
+        socket: true, // true mean that it will run before the request is processed by jeuxsite
     },
 
     //module
@@ -10,7 +10,7 @@ const options = {
         enabled: false,
         where: "https://jehende.fr"
     },
-    stop_the_request : false, //should it destroy the request so that the request isn't processed any further ? (highly recommended)
+    stop_the_request : true, //should it destroy the request so that the request isn't processed any further ? (highly recommended)
     cache_the_response: true, //should it send a time in the cache control header, only useful when stop_the_request, ou redirect is enabled, else it may cache request that you wouldn't want to be cached
     cloudlfare_ip: {
         do_actualise: true, //should it get cloudflare's ip everytime ? (i don't recommend, cuz' if your machine (or network for that matter) is poisoned then it could let an entry here maybe by using some kind of mitm attack) 
@@ -56,10 +56,24 @@ const Http = require('http')
  * @returns [{Http.IncomingMessage}, {Http.ServerResponse}]
  */
 function http(req, res) {
-
     if(checkCloudflare(req) === true){
-        req.socket.remoteAddress = req.headers['cf-connecting-ip']
-        req.log(`\t\tCheck OK new ip : ${req.socket.remoteAddress}`)
+        if(!req.url.startsWith('/socket.io/?EIO=')){
+            req.socket.__defineGetter__('isCloudflare', function ()
+            {
+                return true;
+            });//for socketio
+
+            req.socket.__defineGetter__('remoteAddress', function ()
+            {
+                return req.headers['cf-connecting-ip'];
+            });
+
+            req.connection.__defineGetter__('remoteAddress', function ()
+            {
+                return req.headers['cf-connecting-ip'];
+            });
+            req.log(`\t\tCheck OK new ip : ${req.socket.remoteAddress}\r\n\t\t\tLocation : http${req.https ? "s" : ""}://${req.headers.host}${req.url}`)
+        }
     }else{
         req.log(`\t\tCheck failed\r\n\t\t\tUser-Agent : ${req.headers['user-agent']}\r\n\t\t\tLocation : http${req.https ? "s" : ""}://${req.headers.host}${req.url}`)
         if (options.redirect.enabled === true){
@@ -87,13 +101,24 @@ function http(req, res) {
     }
     return req, res
 }
+const Socket = require('socket.io')
+/**
+ * 
+ * @param {Socket.Socket} socket 
+ * @returns 
+ */
 function socket(socket) {
     socket.handshake.log = socket.log
-    if(checkCloudflare(socket.handshake) === true){
+    if(socket.request.socket.isCloudflare === true || checkCloudflare(socket.handshake) === true){
         socket.handshake.adresss = socket.handshake.headers['cf-connecting-ip']
-        socket.handshake.log(`\t\tCheck OK new ip : ${socket.handshake.address}`)
+        socket.log(`\t\tCheck OK new ip : ${socket.handshake.address}`)
+		socket.handshake.__defineGetter__('isCloudflare', function ()
+		{
+			return true;
+		});
+        socket.isCloudflare = true
     }else{
-        socket.handshake.log(`\t\tCheck failed\r\n\t\t\tUser-Agent : ${socket.handshake.headers['user-agent']}\r\n\t\t\tLocation : ws${socket.handshake.ssl ? "s" : ""}://${socket.handshake.headers.host}${socket.handshake.url}`)
+        socket.handshake.log(`\t\tCheck failed\r\n\t\t\tUser-Agent : ${socket.handshake.headers['user-agent']}\r\n\t\t\tLocation : ws${socket.handshake.secure? "s" : ""}://${socket.handshake.headers.host}${socket.handshake.url}`)
         socket.emit("fault", "cloudflare not detected")
         if (options.stop_the_request === true) socket.disconnect()
         if (options.stop_the_request === true) socket.handshake.log(`\t\tHard-stopping the socket`)
@@ -110,10 +135,18 @@ const range_check = require('range_check');
  */
 function checkCloudflare (req){
     var ip_address = (req.socket ? req.socket.remoteAddress : req.address).replace(/\:\:ffff\:/g, '');
-    req.log(`\tCheck cloudflare for "${ip_address}" portocol : ${req.socket !== undefined ? "http" + (req.https ? "s" : "") : "socket"}`)
+    req.log(`\tCheck cloudflare for "${ip_address}" protocol : ${req.socket !== undefined ? "http" + (req.https ? "s" : "") : "socket"}`)
     if (req.headers['cf-connecting-ip'] === undefined){
         req.log(`\t\tNo cloudflare header in request`)
         return false;
+    }
+    if (req.socket === undefined && req.isCloudflare !== undefined && req.isCloudflare === true){
+        req.log(`\t\tCloudflare getter is true`)
+        return true;
+    }
+    if (req.socket !==undefined && req.socket.isCloudflare !== undefined && req.socket.isCloudflare === true){
+        req.log(`\t\tSocket cloudflare getter is true`)
+        return true;
     }
     if (range_check.isIP(ip_address)){
         var ip_ver = range_check.version(ip_address);
