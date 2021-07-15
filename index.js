@@ -145,6 +145,7 @@ function handler(req, res) {
         if (bool === true) log.log(req.tmpLog)
         if (bool === true) delete req.tmpLog 
     }
+    req.log_handler = log
     req.log(`\r\nIncoming http${req.https ? "s" : ""} request from "${req.connection.remoteAddress}"\r\n\tChecking "before process" modules.`)
     for (const key in modules.http.before) {
         if (Object.hasOwnProperty.call(modules.http.before, key)) {
@@ -264,6 +265,7 @@ if (config.socketio === true) io.on('connection', socket => {
             socket.tmpLog += "\r\n" + text
         if (bool === true) log.log(socket.tmpLog)
     }
+    socket.log_handler = log
     socket.log(`\r\nIncoming socket request from "${socket.handshake.address}"\r\n\tChecking "before process" modules.`)
     for (const key in modules.socket.before) {
         if (Object.hasOwnProperty.call(modules.socket.before, key)) {
