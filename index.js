@@ -60,16 +60,19 @@ for (const file of PMod) {
         if(file.endsWith(`.js`)){
             var modTMP = require(`./jg_module/${file}`)
             if (modTMP.options !== undefined){
+                var t = false
                 if (modTMP.options.work_on.http !== undefined){
                     if(modTMP.http !== undefined){
                         if(modTMP.options.work_on.http === true){
                             modules.http.before[file] = modTMP
                             log.log(`\tModule "${file}" has hooked in http before the request is processed.`)
                             ModulesNB["http"]++
+                            t = true
                         }else{
                             modules.http.after[file] = modTMP
                             log.log(`\tModule "${file}" has hooked in http after the request is processed.`)
                             ModulesNB["http"]++
+                            t = true
                         }
                     }else log.warn(`\tModule "${file}" specified wanting to hook in http but didn't have a function, not using it.`)
                 }
@@ -79,13 +82,16 @@ for (const file of PMod) {
                             modules.socket.before[file] = modTMP
                             log.log(`\tModule "${file}" has hooked in socket before the request is processed.`)
                             ModulesNB["socket"]++
+                            t = true
                         }else{
                             modules.socket.after[file] = modTMP
                             log.log(`\tModule "${file}" has hooked in socket after the request is processed.`)
                             ModulesNB["socket"]++
+                            t = true
                         }
                     }else log.warn(`\tModule "${file}" specified wanting to hook in socket.io but didn't have a function, not using it.`)
                 }
+                if(t === false) log.warn(`\tModule "${file}" isn't doing anything.`)
             }else log.warn(`\tModule "${file}" didn't have options.`)
         }
     }
