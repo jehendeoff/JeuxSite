@@ -325,3 +325,11 @@ if (config.socketio === true) io.on('connection', socket => {
     return socket.emit("fault", "Error 500, domain not found.")
 
 })
+
+process.on('SIGINT', _ => {
+    log.log("Stopping.")
+    io.close()
+    http.close(()=>{})
+    https.close(()=>{})
+    process.exit(0)
+});
