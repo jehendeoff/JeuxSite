@@ -26,16 +26,16 @@ if (!fs.existsSync("./function/")){
 } 
 
 //starting the boot sequence
-let config
+let config;
 fs.existsSync("./function/bootup.js") ? config = require("./function/bootup").run() : () => {
-    log.error("You installed it wrong, the \"bootup\" file is missing.\n\n");
-    process.exit(1)
-}
+	log.error("You installed it wrong, the \"bootup\" file is missing.\n\n");
+	process.exit(1);
+};
 //simple check to verify the config has been passed
-config.path ? log.log('The config was parsed, and verified with success !') : () => {
-    log.error("Config wasn't able to be loaded !");
-    process.exit(1)
-}
+config.path ? log.log("The config was parsed, and verified with success !") : () => {
+	log.error("Config wasn't able to be loaded !");
+	process.exit(1);
+};
 
 // var limit = {}
 // //the rate limiter
