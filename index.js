@@ -7,12 +7,17 @@
 
 
 //check if it can boot
-const fs = require("fs")
-
-if (!fs.existsSync('./function/log.js')){
-    log = console
+const cluster = require("cluster");
+if (cluster.isWorker) {
+	console.error("Does not work in cluster, sorry.");
+	process.exit(0);
+}
+const fs = require("fs");
+let log;
+if (!fs.existsSync("./function/log.js")){
+	log = console;
 } else{
-    log = require('./function/log.js')
+	log = require("./function/log.js");
 }
 
 if (!fs.existsSync("./function/")) return log.error("You installed it wrong, the \"function\" folder is missing.\n\n")
