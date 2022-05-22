@@ -16,9 +16,6 @@ exports.run = () => {
 	if(!fs.existsSync("./Default web page/too many request.html")){
 		throw new Error("Something's wrong, the \"too many request\" file is missing.\n\n");
 	}
-	if(!fs.existsSync("./Default web page/example.js")){
-		throw new Error("Something's wrong, the \"example\" file is missing.\n\n");
-	}
 
 	const config = yaml.parse(fs.readFileSync("./config.yml", "utf-8"));
 
@@ -34,10 +31,13 @@ exports.run = () => {
 	//creating the simple example...
 	if(!fs.existsSync(config.path)){
 		fs.mkdirSync(config.path);
-		fs.mkdirSync(config.path + "localhost/");
-		fs.mkdirSync(config.path + "localhost/web/");
-		fs.writeFileSync(config.path + "localhost/index.js", fs.readFileSync("./Default web page/example.js", "utf-8").replace(/\$dir/gi, __dirname.toString().split("\\").filter(o => o !== "function").join("\\\\")));
-		fs.writeFileSync(config.path + "localhost/web/index.html", fs.readFileSync("./Default web page/example.html"));
+		if (fs.existsSync("./Default web page/example.html")
+		&& fs.existsSync("./Default web page/example.js")){
+			fs.mkdirSync(config.path + "localhost/");
+			fs.mkdirSync(config.path + "localhost/web/");
+			fs.writeFileSync(config.path + "localhost/index.js", fs.readFileSync("./Default web page/example.js"));
+			fs.writeFileSync(config.path + "localhost/web/index.html", fs.readFileSync("./Default web page/example.html"));
+		}
 	}
 
 	//passing the config...

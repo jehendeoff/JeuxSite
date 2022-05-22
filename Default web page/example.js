@@ -4,10 +4,8 @@ const SocketIO = require("socket.io");
 /**
  * @param {http.IncomingMessage} req The request
  * @param {http.ServerResponse} res The response
- * @param {String} config The parsed config
- * @param {String} domain The parsed config
  */
-exports.http = async (req, res, config, domain) => {
+exports.http = async (req, res) => {
 	res.writeHead(200, {
 		"X-Frame-Options": "DENY",
 		"X-Coded-By": "Jehende",
@@ -20,9 +18,7 @@ exports.http = async (req, res, config, domain) => {
 };
 /**
  * @param {SocketIO.Socket} socket The socket
- * @param {String} config The parsed config
- * @param {String} domain The parsed config
  */
-exports.socket = async (socket, config, domain) => {
+exports.socket = async (socket) => {
 	socket.emit("success", "Socketio connected");
 };

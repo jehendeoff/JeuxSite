@@ -1,6 +1,6 @@
 //warning this need test, I only did this because .... I was bored ?
 
-//in short, how to set this baby up is simple : if you have a domaine name, put "a" redirection on the server running it and create a folder with your domain name in the path you provided
+//in short, how to set this baby up is simple : if you have a domaine name, put "CNAME" redirection on the server running it and create a folder with your domain name in the path you provided
 // ...
 // this is all, you can even redirect sub-domain on the same serveur and create sub domain with one machine, and using node js for each of your domain, the 'localhost' contain a simple nodejs file for you to test.
 //Oh and you can also use multiple domain !
@@ -39,6 +39,7 @@ config.path ? log.log("The config was parsed, and verified with success !") : ()
 
 
 let ready = false;
+
 function setCluster(path){
 	cluster.setupPrimary({
 		exec: path,
@@ -60,7 +61,9 @@ async function handler(req, res) {
 		if (bool === true) delete req.tmpLog;
 	};
 	req.log_handler = log;
+
 	req.log(`\r\nIncoming http${req.https ? "s" : ""} request from "${req.connection.remoteAddress}"\r\n\tChecking "before process" modules.`);
+
 	for (const key in modules.http.before) {
 		if (Object.hasOwnProperty.call(modules.http.before, key)) {
 			const modTMP = modules.http.before[key];
@@ -74,12 +77,12 @@ async function handler(req, res) {
 			if(res.destroyed === true || res.writableFinished === true || res.stop === true) return req.log(`\tModule "${key}" stopped the request.`, true);
 		}
 	}
+
 	if(res.destroyed === true || res.writableFinished === true || res.stop === true) return req.log("\tAn unknown module stopped the request.", true);
 	req.log("\tFinished passing the request to \"before process\" modules.");
 
 	//ckecking the headers
 	if (!req.headers.host) {
-
 		res.writeHead(400, "No host header.", {
 			"X-Frame-Options": "DENY",
 			"content-type": "text/html;charset=utf-8",
@@ -93,7 +96,8 @@ async function handler(req, res) {
 
 	//forgetting the port
 	req.domain = `${req.headers.host}`.split(":")[0];
-	//first check (with(/out) www.)
+
+	//first check (with www.)
 	if(site.http[req.domain] !== undefined) {
 		req.log("\tChecking \"after process\" modules.");
 		for (const key in modules.http.after) {
@@ -111,24 +115,26 @@ async function handler(req, res) {
 		return site.http[req.domain](req, res, config, req.domain /*for legacy compatibility*/);
 	}
 
-	if(req.domain.startsWith("www.") && config.replace_www) req.domain = req.domain.replace("www.", "");
-	//first check (without www.)
-	if(site.http[req.domain] !== undefined) {
+	if(config.replace_www && req.domain.startsWith("www.")) {
+		req.domain = req.domain.replace("www.", "");
+		//second check (without www.)
+		if(site.http[req.domain] !== undefined) {
 
-		req.log("\tChecking \"after process\" modules.");
-		for (const key in modules.http.after) {
-			if (Object.hasOwnProperty.call(modules.http.after, key)) {
-				const modTMP = modules.http.after[key];
-				req, res = modTMP.http(req, res);
-				if(!req) return req.log(`\tModule "${key}" stopped the request by not returning the request.`, true);
-				if(!res) return req.log(`\tModule "${key}" stopped the request by not returning the response.`, true);
-				if(res.destroyed === true || res.writableFinished === true || res.stop === true) return req.log(`\tModule "${key}" stopped the request.`, true);
+			req.log("\tChecking \"after process\" modules.");
+			for (const key in modules.http.after) {
+				if (Object.hasOwnProperty.call(modules.http.after, key)) {
+					const modTMP = modules.http.after[key];
+					req, res = modTMP.http(req, res);
+					if(!req) return req.log(`\tModule "${key}" stopped the request by not returning the request.`, true);
+					if(!res) return req.log(`\tModule "${key}" stopped the request by not returning the response.`, true);
+					if(res.destroyed === true || res.writableFinished === true || res.stop === true) return req.log(`\tModule "${key}" stopped the request.`, true);
+				}
 			}
+			if(res.destroyed === true || res.writableFinished === true || res.stop === true) return req.log("\tAn unknown module stopped the request.", true);
+			req.log("\tFinished passing the request to \"after process\" modules.");
+			setCluster(`${config.path}${req.domain}/index.js`);
+			return site.http[req.domain](req, res, config, req.domain /*for legacy compatibility*/);
 		}
-		if(res.destroyed === true || res.writableFinished === true || res.stop === true) return req.log("\tAn unknown module stopped the request.", true);
-		req.log("\tFinished passing the request to \"after process\" modules.");
-		setCluster(`${config.path}${req.domain}/index.js`);
-		return site.http[req.domain](req, res, config, req.domain /*for legacy compatibility*/);
 	}
 
 	req.log("\tChecking \"after process\" modules.");
@@ -203,6 +209,7 @@ if (config.socketio === true) io.on("connection", socket => {
 		if (bool === true) log.log(socket.tmpLog);
 	};
 	socket.log_handler = log;
+
 	socket.log(`\r\nIncoming socket request from "${socket.handshake.address}"\r\n\tChecking "before process" modules.`);
 	for (const key in modules.socket.before) {
 		if (Object.hasOwnProperty.call(modules.socket.before, key)) {
@@ -221,7 +228,7 @@ if (config.socketio === true) io.on("connection", socket => {
 	//forgetting the port
 	socket.domain = `${socket.handshake.headers.host}`.split(":")[0];
 
-	//first check (with(/out) www.)
+	//first check (with www.)
 	if(site.socket[socket.domain] !== undefined){
 
 		socket.log(`\r\nIncoming socket request from "${socket.handshake.address}"\r\n\tChecking "after process" modules.`);
@@ -240,30 +247,31 @@ if (config.socketio === true) io.on("connection", socket => {
 	}
 
 
-	if(socket.domain.startsWith("www.") && config.replace_www) socket.domain = socket.domain.replace("www.", "");
+	if(config.replace_www && socket.domain.startsWith("www.")){ socket.domain = socket.domain.replace("www.", "");
 
-	//first check (without www.)
-	if(site.socket[socket.domain] !== undefined){
+		//second check (without www.)
+		if(site.socket[socket.domain] !== undefined){
 
-		socket.log(`\r\nIncoming socket request from "${socket.handshake.address}"\r\n\tChecking "after process" modules.`);
-		for (const key in modules.socket.after) {
-			if (Object.hasOwnProperty.call(modules.socket.after, key)) {
-				const modTMP = modules.socket.after[key];
-				socket = modTMP.socket(socket);
-				if(!socket) return socket.log(`\tModule "${key}" stopped the request by not returning the socket.`, true);
-				if(socket.disconnected === true) return socket.log(`\tModule "${key}" stopped the request.`, true);
+			socket.log(`\r\nIncoming socket request from "${socket.handshake.address}"\r\n\tChecking "after process" modules.`);
+			for (const key in modules.socket.after) {
+				if (Object.hasOwnProperty.call(modules.socket.after, key)) {
+					const modTMP = modules.socket.after[key];
+					socket = modTMP.socket(socket);
+					if(!socket) return socket.log(`\tModule "${key}" stopped the request by not returning the socket.`, true);
+					if(socket.disconnected === true) return socket.log(`\tModule "${key}" stopped the request.`, true);
+				}
 			}
+			if(socket.disconnected === true) return socket.log("\tAn unknown module stopped the request.", true);
+			socket.log("\tFinished passing the request to \"after process\" modules.");
+			return site.socket[socket.domain](socket);
 		}
-		if(socket.disconnected === true) return socket.log("\tAn unknown module stopped the request.", true);
-		socket.log("\tFinished passing the request to \"after process\" modules.");
-		return site.socket[socket.domain](socket);
 	}
 
 	return socket.emit("fault", "Error 500, domain not found.");
 
 });
 
-var modules = {};
+let modules = {};
 modules.http = {};
 modules.http.before = {};
 modules.http.after = {};
@@ -271,17 +279,20 @@ modules.http.after = {};
 modules.socket = {};
 modules.socket.before = {};
 modules.socket.after = {};
+
 log.log("\r\nLoading modules.");
-var PMod =fs.readdirSync("./jg_module/");
-var ModulesNB = [];
+
+let ModulesNB = [];
 ModulesNB["http"] =0;
 ModulesNB["socket"] =0;
+
+let PMod =fs.readdirSync("./jg_module/");
 for (const file of PMod) {
 	if (!fs.statSync(`./jg_module/${file}`).isDirectory()){
 		if(file.endsWith(".js")){
-			var modTMP = require(`./jg_module/${file}`);
+			const modTMP = require(`./jg_module/${file}`);
 			if (modTMP.options !== undefined){
-				var t = false;
+				let t = false;
 				if (modTMP.options.work_on.http !== undefined){
 					if(modTMP.http !== undefined){
 						if(modTMP.options.work_on.http === true){
@@ -318,19 +329,23 @@ for (const file of PMod) {
 	}
 }
 log.log(`\tFinished loading ${ModulesNB["http"]} http & ${ModulesNB["socket"]} socket modules.`);
+
 log.log("\r\nLoading sites.");
-let PWeb =fs.readdirSync(config.path);
-let siteNB = [];
-siteNB["http"] =0;
-siteNB["socket"] =0;
+
 let site = {};
 site.http = {};
 site.socket = {};
+
+let siteNB = [];
+siteNB["http"] =0;
+siteNB["socket"] =0;
+
+const PWeb =fs.readdirSync(config.path);
 for (const dir of PWeb) {
 	if(fs.statSync(`${config.path}${dir}`).isDirectory()){
 		if (fs.existsSync (`${config.path}${dir}/index.js`)){
 			if(!fs.statSync(`${config.path}${dir}/index.js`).isDirectory()){
-				let modTMP = require(`${config.path}${dir}/index.js`);
+				const modTMP = require(`${config.path}${dir}/index.js`);
 				if(modTMP.http !== undefined){
 					site.http[dir] = modTMP.http;
 					log.log(`\tsite "${dir}" loaded in http.`);
