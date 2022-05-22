@@ -1,13 +1,13 @@
 
 const options = {
-    //jeuxsite
-    work_on : {
-        "http" : false, // false mean that it will run after the request is processed by jeuxsite 
-    },
-    
-} 
+	//jeuxsite
+	work_on : {
+		"http" : false, // false mean that it will run after the request is processed by jeuxsite 
+	},
+	
+}; 
 
-const Http = require("http")
+//const Http = require("http");
 /**
  * 
  * @param {Http.IncomingMessage} req 
@@ -15,19 +15,19 @@ const Http = require("http")
  * @returns [{Http.IncomingMessage}, {Http.ServerResponse}]
  */
 function http (req, res) {
-    var cookies = {}
-    if(req.headers["cookie"] !== undefined){
-        req.headers["cookie"].split(/; /gi).forEach(cookie => {
-            var source = cookie.split("=")[0]
-            var value = cookie.split("=")[1]
-            cookies[source] = value
-        })
-    }
-    req.cookies = cookies
-    return req, res
+	let cookies = {};
+	if(req.headers["cookie"] !== undefined){
+		req.headers["cookie"].split(/; /gi).forEach(cookie => {
+			const source = cookie.split("=")[0];
+			const value = cookie.split("=")[1];
+			cookies[source] = value;
+		});
+	}
+	req.cookies = cookies;
+	return req, res;
 }
 
 module.exports = {
-    options, 
-    http
-}
+	options, 
+	http
+};
