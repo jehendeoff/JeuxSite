@@ -20,7 +20,10 @@ if (!fs.existsSync("./function/log.js")){
 	log = require("./function/log.js");
 }
 
-if (!fs.existsSync("./function/")) return log.error("You installed it wrong, the \"function\" folder is missing.\n\n")
+if (!fs.existsSync("./function/")){
+	log.error("You installed it wrong, the \"function\" folder is missing.\n\n");
+	process.exit(1);
+} 
 
 //starting the boot sequence
 let config
